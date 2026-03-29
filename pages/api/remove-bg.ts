@@ -1,4 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { getServerSession } from 'next-auth';
+import { authOptions } from './auth/[...nextauth]';
 import axios from 'axios';
 import FormData from 'form-data';
 
@@ -16,6 +18,12 @@ export default async function handler(
 ) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  // 检查用户是否登录
+  const session = await getServerSession(req, res, authOptions);
+  if (!session) {
+    return res.status(401).json({ error: '请先登录' });
   }
 
   const apiKey = process.env.REMOVE_BG_API_KEY;
